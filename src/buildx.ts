@@ -8,6 +8,7 @@ import * as github from './github';
 import * as core from '@actions/core';
 import * as exec from '@actions/exec';
 import * as tc from '@actions/tool-cache';
+import * as io from '@actions/io';
 
 export type Builder = {
   name?: string;
@@ -298,7 +299,10 @@ async function setPlugin(toolPath: string, dockerConfigHome: string): Promise<st
   const filename: string = context.osPlat == 'win32' ? 'docker-buildx.exe' : 'docker-buildx';
   const pluginPath: string = path.join(pluginsDir, filename);
   core.debug(`Plugin path is ${pluginPath}`);
-  fs.copyFileSync(toolBinPath, pluginPath);
+  core.info(`toolBinPath ${toolBinPath}`);
+  core.info(`pluginPath ${pluginPath}`);
+  // fs.copyFileSync(toolBinPath, pluginPath);
+  await io.cp(toolBinPath, pluginPath);
 
   core.info('Fixing perms');
   fs.chmodSync(pluginPath, '0755');
@@ -312,7 +316,9 @@ async function download(version: string): Promise<string> {
   core.info(`Downloading ${downloadUrl}`);
   const downloadPath = await tc.downloadTool(downloadUrl);
   core.debug(`Downloaded to ${downloadPath}`);
-  return await tc.cacheFile(downloadPath, targetFile, 'buildx', version);
+  await tc.cacheFile(downloadPath, targetFile, 'buildx', version);
+  await io.cp(downloadPath, "/runner/_work/_temp/docker-buildx");
+  return path.dirname(downloadPath);
 }
 
 async function filename(version: string): Promise<string> {

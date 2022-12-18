@@ -38,10 +38,18 @@ async function run(): Promise<void> {
         throw new Error(`Cannot build from source without the Docker CLI`);
       }
       core.startGroup(`Build and install buildx`);
+      core.info(`charlie 1`);
+      core.info(`inputs.version ${inputs.version}`);
+      core.info(`dockerConfigHome ${dockerConfigHome}`);
+      core.info(`standalone ${standalone}`);
       await buildx.build(inputs.version, dockerConfigHome, standalone);
       core.endGroup();
     } else if (!(await buildx.isAvailable(standalone)) || inputs.version) {
       core.startGroup(`Download and install buildx`);
+      core.info(`charlie 2`);
+      core.info(`inputs.version ${inputs.version}`);
+      core.info(`dockerConfigHome ${dockerConfigHome}`);
+      core.info(`standalone ${standalone}`);
       await buildx.install(inputs.version || 'latest', standalone ? context.tmpDir() : dockerConfigHome, standalone);
       core.endGroup();
     }
